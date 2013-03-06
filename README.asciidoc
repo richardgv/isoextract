@@ -1,0 +1,89 @@
+isoextract README
+=================
+
+isoextract is a program that extracts files from various CD-ROM/DVD-ROM image formats '(but due to lack of UDF support, DVD-ROM images may not work)', a quick-n-dirty frontend of link:http://cdemu.org/about/libmirage/[libmirage] and link:http://libburnia-project.org/wiki/Libisofs[libisofs].
+
+isoextract supports link:http://cdemu.org/about/libmirage/[all the format libmirage supports], which are, at the time of writing:
+
+* Alcohol 120% (MDS, MDX) image format
+* Apple disk (DMG, CDR) image format
+* BlindWrite 5/6 (B5T, B6T) image format
+* Compressed ISO (CSO) image format
+* CloneCD (CCD, SUB, IMG) image format
+* CDRwin (CUE, BIN) image format
+* Cdrdao's (TOC, BIN) image format
+* DiscJuggler (CDI) image format
+* Easy CD Creator (CIF) image format
+* Easy Media Creator/WinOnCD (C2D) file format
+* Error Code Modeller (ECM) container format
+* gBurner (GBI) image format
+* GZip (GZ) container format
+* ISO-9660 (ISO) image format
+* PowerISO (DAA) image format
+* Nero Burning ROM (NRG) image format
+* ReadCD (TOC, BIN) image format
+* UltraISO's (ISZ) image format
+* Universal Disk Format (UDF) image format
+* XCDRoast (TOC, BIN) image format
+* Xz (XZ) container format
+
+Dependencies
+------------
+* =libmirage-2*
+
+* =glib-2*
+
+* libisofs
+
+* libpcre
+
+* asciidoc, docbook-xml-dtd, etc., if you need to build the man page
+
+How to build
+------------
+
+[source,sh]
+----
+# Build program
+$ make
+# Build docs
+$ make docs
+----
+
+Usage
+-----
+
+[source,sh]
+----
+# List all files in /usr/share/virtualbox/VBoxGuestAdditions.iso
+isoextract -l -i /usr/share/virtualbox/VBoxGuestAdditions.iso
+
+# Extract all files (but not directories!) directly under the root directory
+# and all "Readme*" files under a directory under the root directory to
+# /tmp/vbox
+isoextract -i /usr/share/virtualbox/VBoxGuestAdditions.iso -o /tmp/vbox -v '/*' '*/Readme*'
+
+# Extract all .dll files within the image, using PCRE regular expressions
+isoextract -i /usr/share/virtualbox/VBoxGuestAdditions.iso -o /tmp/vbox -P '.*\.dll'
+
+# List all files that has a segment in path that starts with "ger" in
+# "/tmp/tot/Civ II Test of Time.B6T" , using --absolute to deal with the
+# incorrect metadata in the image
+isoextract -l -i /tmp/tot/Civ\ II\ Test\ of\ Time.B6T --absolute -P '(^|/)ger'
+----
+
+Notes & Limitations
+-------------------
+* This software is of pre-alpha quality.
+
+* Multi-session or MODE-2 disk images probably won't work. To add support for them I need a test image.
+
+* It's not possible to read image from `stdin`, because, presumably, random access is required.
+
+* Only ISO9660 filesystem is supported presently. UDF isn't, because I haven't found a proper library that exposes the driver interface to connect with libmirage. (libcdio does have such a interface, but an internal one.)
+
+* I don't know whether it's possible to port it to Windows. In particular, I don't know if libisofs works on Windows.
+
+License
+-------
+link:http://en.wikipedia.org/wiki/MIT_license[MIT License], I think.

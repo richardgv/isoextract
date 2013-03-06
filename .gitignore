@@ -1,0 +1,20 @@
+# Vim files
+.*.sw[op]
+*~
+
+# Generated code files
+/isoextract
+/*.o
+/src/.clang_complete
+core
+core.*
+
+# Generated documentation files
+/README.html
+/man/*.[1-8]
+/man/*.[1-8].html
+/doxygen-html
+
+# Misc files
+/Doxyfile
+/isoextract.plist

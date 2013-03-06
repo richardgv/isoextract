@@ -1,0 +1,48 @@
+isoextract(1)
+=============
+:doctype:     manpage
+:man source:  isoextract
+:man version: nightly-20130203
+:man manual:  LOCAL USER COMMANDS
+
+NAME
+----
+isoextract - Extract files from CD images
+
+SYNOPSIS
+--------
+*isoextract* -i 'IMAGE' [-i 'IMAGE' ...] [-o 'OUTPUT_PATH'] ['OPTIONS'] ['PATTERNS']
+
+WARNING
+-------
+This man page may be less up-to-date than the usage text in isoextract (`isoextract -h`).
+
+DESCRIPTION
+-----------
+isoextract is a program that extracts files from CD-ROM images, supporting all formats libmirage supports. (DVD-ROM images may not work due to lack of UDF support.) Basically it's a quick-n-dirty frontend of libmirage and libisofs.
+
+OPTIONS
+-------
+*-h*, *--help*::
+	Get the usage text embedded in program code, which may be more up-to-date than this man page.
+
+EXAMPLES
+--------
+
+* Extract all files from `cd.iso` to current directory:
++
+------------
+$ isoextract -i cd.iso
+------------
+
+BUGS
+----
+Please report any you find to <https://github.com/richardgv/isoextract> .
+
+AUTHORS
+-------
+Richard Grenville <https://github.com/richardgv>.
+
+RESOURCES
+---------
+Homepage: <https://github.com/richardgv/isoextract>
