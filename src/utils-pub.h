@@ -42,6 +42,13 @@ static inline int min_i(int a, int b) {
 }
 
 /**
+ * @brief Return the larger of two integers.
+ */
+static inline int max_i(int a, int b) {
+  return (a > b ? a: b);
+}
+
+/**
  * @brief Dump raw bytes in HEX format.
  *
  * @param data pointer to raw data
@@ -214,3 +221,6 @@ static inline void dump_gerror(const GError *perr) {
 }
 
 bool path_create_ancestors(char *path);
+
+void node_print_stat_info(FILE *stream, const char *path,
+    const struct stat *pst, const char *link_target, bool human_readable);

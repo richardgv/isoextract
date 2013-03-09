@@ -37,7 +37,9 @@ Dependencies
 
 * libpcre
 
-* asciidoc, docbook-xml-dtd, etc., if you need to build the man page
+* asciidoc, docbook-xml-dtd, etc., if you need to build the man page (build time)
+
+* pkg-config (build time)
 
 How to build
 ------------

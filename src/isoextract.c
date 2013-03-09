@@ -548,6 +548,7 @@ static inline bool iiso_handle_file(session_t *ps, IsoFileSource *pfile,
     goto iiso_handle_file_end;
   }
 
+  // Write the content of the file to target
   {
     static const unsigned BUF_SZ = 2048;
 
@@ -699,9 +700,28 @@ static matched_t node_match(session_t *ps, node_type_t node_type,
 static inline void iiso_show_file(session_t *ps, node_type_t node_type,
     const char *name, const char *path, matched_t matched,
     IsoFileSource *pfile) {
-  if ((MODE_LIST == ps->o.op_mode || ps->o.verbose)
-      && MATCHED_DIR_PASSTHROUGH != matched)
+  // Passthrough matches should not be considered
+  if (MATCHED_DIR_PASSTHROUGH == matched)
+    return;
+
+  // Simple file path printing
+  if ((MODE_LIST == ps->o.op_mode && !ps->o.verbose)
+      || (MODE_EXTRACT == ps->o.op_mode && ps->o.verbose >= 1))
     printf("%s\n", path);
+  // `ls -l` style
+  else if (MODE_LIST == ps->o.op_mode && ps->o.verbose >= 1) {
+    struct stat st;
+    char *link_target = NULL;
+    bool success = (ISO_SUCCESS == iso_file_source_lstat(pfile, &st));
+    if (success && S_ISLNK(st.st_mode) && st.st_size) {
+      link_target = calloc(st.st_size + 1, sizeof(char));
+      allocchk(link_target);
+      success = iso_file_source_readlink(pfile, link_target, st.st_size + 1);
+    }
+    if (success)
+      node_print_stat_info(stdout, path, &st, link_target, ps->o.sz_human_readable);
+    free(link_target);
+  }
 }
 
 /**
@@ -920,6 +940,7 @@ static bool cfg_get(session_t *ps, int argc, char **argv) {
     OPT_OFFSET,
     OPT_SECTOR_DATA_LEN,
     OPT_SECTOR_PADDING_START,
+    OPT_SZ_HUMAN_READABLE,
   };
 
   static const char * const OPTS_SHORT = "hlPrvc:i:o:";
@@ -930,6 +951,7 @@ static bool cfg_get(session_t *ps, int argc, char **argv) {
     { "offset", required_argument, NULL, OPT_OFFSET },
     { "sector-data-len", required_argument, NULL, OPT_SECTOR_DATA_LEN },
     { "sector-padding-start", required_argument, NULL, OPT_SECTOR_PADDING_START },
+    { "sz-human-readable", no_argument, NULL, OPT_SZ_HUMAN_READABLE },
     { NULL, no_argument, NULL, 0 },
   };
 
@@ -946,9 +968,10 @@ static bool cfg_get(session_t *ps, int argc, char **argv) {
       case 'h': usage(RETV_MATCHED);
       case 'l': ps->o.op_mode = MODE_LIST; break;
       case 'r': ps->o.recursive = true; break;
-      case 'v': ps->o.verbose = true; break;
       case 'P': pcre = true; break;
+      case OPT_SZ_HUMAN_READABLE: ps->o.sz_human_readable = true; break;
       case OPT_ABSOLUTE: ps->o.abs = true; break;
+      case 'v': ++ps->o.verbose; break;
       case OPT_OFFSET: ps->o.offset = strtol(optarg, NULL, 0); break;
       case OPT_SECTOR_DATA_LEN: ps->o.sector_data_len = atoi(optarg); break;
       case OPT_SECTOR_PADDING_START: ps->o.sector_padding_start = atoi(optarg); break;
@@ -1202,6 +1225,9 @@ static void __attribute__((noreturn)) usage(retv_t ret) {
     "  Enable PCRE pattern support. This option let isoextract interpret\n"
     "  all patterns as PCRE regular expressions." CONFIGFLAG_REGEX_PCRE "\n"
 #undef CONFIGFLAG_REGEX_PCRE
+    "-v\n"
+    "  Display verbose information. Could be used for multiple times to\n"
+    "  increase verbosity.\n"
     "--password PASSWORD\n"
     "  Specify input image password, for those image formats that support\n"
     "  it.\n"
@@ -1218,6 +1244,8 @@ static void __attribute__((noreturn)) usage(retv_t ret) {
     "--sector-padding-start BYTES\n"
     "  Length of bytes in front of a sector that should be discarded.\n"
     "  Auto-detected if not specified.\n"
+    "--sz-human-readable\n"
+    "  Print file size in human-readable format.\n"
     ;
 
   fputs(USAGE_STR, stdout);

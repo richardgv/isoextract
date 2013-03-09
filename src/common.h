@@ -28,13 +28,15 @@
 
 // === Include ===
 
+// Require for ISSOCK(), somehow
+#define _GNU_SOURCE
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
 #include <unistd.h>
 #include <inttypes.h>
 
@@ -117,12 +119,17 @@ typedef struct {
 #endif
   /// @brief Whether to extract a matching directory recursively.
   bool recursive;
-  /// @brief Whether to display verbose info.
-  bool verbose;
+  /// @brief Level of output verbosity.
+  int verbose;
+  /// @brief Whether to print size in human-readable format.
+  bool sz_human_readable;
   /// @brief Whether to use absolute sector positioning.
   bool abs;
+  /// @brief Override sector data length, in bytes.
   int sector_data_len;
+  /// @brief Override sector start padding, in bytes.
   int sector_padding_start;
+  /// @brief Extra offset to be applied when reading sectors, in bytes.
   long offset;
 } options_t;
 
